@@ -1,0 +1,110 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-symbol">{{ themeService.selectedReligion()?.iconSymbol || '✝' }}</div>
+      <h1>Registracija</h1>
+      <p>Kreirajte besplatan nalog</p>
+    </div>
+
+    <mat-stepper linear #stepper>
+      <!-- Korak 1: Lični podaci -->
+      <mat-step [stepControl]="personalForm" label="Lični podaci">
+        <form [formGroup]="personalForm">
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Ime</mat-label>
+              <input matInput formControlName="firstName" placeholder="Vaše ime">
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-error *ngIf="personalForm.get('firstName')?.hasError('required')">Ime je obavezno</mat-error>
+              <mat-error *ngIf="personalForm.get('firstName')?.hasError('minlength')">Min. 2 karaktera</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Prezime</mat-label>
+              <input matInput formControlName="lastName" placeholder="Vaše prezime">
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-error *ngIf="personalForm.get('lastName')?.hasError('required')">Prezime je obavezno</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Telefon</mat-label>
+            <input matInput formControlName="phoneNumber" placeholder="+387 XX XXX XXX">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="personalForm.get('phoneNumber')?.hasError('required')">Telefon je obavezan</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Vjera (opcionalno)</mat-label>
+            <mat-select formControlName="religionId">
+              <mat-option [value]="null">— Izaberite vjeru —</mat-option>
+              <mat-option *ngFor="let r of religions" [value]="r.id">
+                {{ r.iconSymbol }} {{ r.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>church</mat-icon>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-raised-button color="primary" matStepperNext
+                    [disabled]="personalForm.invalid" class="next-btn">
+              Dalje <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Korak 2: Pristupni podaci -->
+      <mat-step [stepControl]="credentialsForm" label="Pristupni podaci">
+        <form [formGroup]="credentialsForm" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Email adresa</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="vasa@email.com">
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error *ngIf="credentialsForm.get('email')?.hasError('required')">Email je obavezan</mat-error>
+            <mat-error *ngIf="credentialsForm.get('email')?.hasError('email')">Unesite ispravnu email adresu</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Lozinka</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="credentialsForm.get('password')?.hasError('required')">Lozinka je obavezna</mat-error>
+            <mat-error *ngIf="credentialsForm.get('password')?.hasError('minlength')">Min. 6 karaktera</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Potvrdi lozinku</mat-label>
+            <input matInput [type]="hideConfirm ? 'password' : 'text'" formControlName="confirmPassword">
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm">
+              <mat-icon>{{ hideConfirm ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="credentialsForm.hasError('mismatch')">Lozinke se ne poklapaju</mat-error>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">
+              <mat-icon>arrow_back</mat-icon> Nazad
+            </button>
+            <button type="submit" class="submit-btn" [disabled]="loading || credentialsForm.invalid">
+              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+              <span *ngIf="!loading">
+                <mat-icon>how_to_reg</mat-icon>
+                Registruj se
+              </span>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+    </mat-stepper>
+
+    <div class="auth-footer">
+      <p>Već imate nalog? <a routerLink="/auth/login">Prijavite se</a></p>
+      <a routerLink="/">← Nazad na početnu</a>
+    </div>
+  </div>
+</div>

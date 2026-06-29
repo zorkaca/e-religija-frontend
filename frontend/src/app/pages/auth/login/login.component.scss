@@ -1,0 +1,132 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-bg);
+  padding: 24px;
+}
+
+.auth-card {
+  background: var(--color-surface);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.4s ease;
+
+  @media (max-width: 480px) {
+    padding: 32px 24px;
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 36px;
+
+  .auth-symbol {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    color: var(--color-secondary);
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--color-text-light);
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  margin-top: 8px;
+
+  mat-icon { font-size: 20px; }
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p, a {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover { opacity: 0.8; }
+  }
+}
+
+.demo-credentials {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid var(--color-secondary);
+
+  .demo-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-secondary);
+    margin-bottom: 6px;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    margin: 2px 0;
+  }
+}

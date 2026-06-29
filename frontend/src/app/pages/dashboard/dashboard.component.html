@@ -1,0 +1,156 @@
+<div class="dashboard-hero">
+  <div class="dashboard-hero-content">
+    <div class="avatar-large">{{ user?.firstName?.[0] }}{{ user?.lastName?.[0] }}</div>
+    <div class="user-info">
+      <h1>Zdravo, {{ user?.firstName }} {{ user?.lastName }}</h1>
+      <p *ngIf="religion">
+        <span class="religion-symbol">{{ religion.iconSymbol }}</span>
+        {{ religion.name }}
+      </p>
+      <p *ngIf="!religion">Dobrodošli u E-Religija</p>
+    </div>
+  </div>
+</div>
+
+<div class="page-container">
+  <!-- Stats kartice -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <mat-icon>hourglass_empty</mat-icon>
+      <div>
+        <span class="stat-num">{{ pending.length }}</span>
+        <span class="stat-label">Na čekanju</span>
+      </div>
+    </div>
+    <div class="stat-card approved">
+      <mat-icon>check_circle</mat-icon>
+      <div>
+        <span class="stat-num">{{ approved.length }}</span>
+        <span class="stat-label">Odobreno</span>
+      </div>
+    </div>
+    <div class="stat-card rejected">
+      <mat-icon>cancel</mat-icon>
+      <div>
+        <span class="stat-num">{{ rejected.length }}</span>
+        <span class="stat-label">Odbijeno</span>
+      </div>
+    </div>
+    <div class="stat-card total">
+      <mat-icon>event_note</mat-icon>
+      <div>
+        <span class="stat-num">{{ appointments.length }}</span>
+        <span class="stat-label">Ukupno</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Akcije -->
+  <div class="quick-actions">
+    <a routerLink="/booking" class="action-btn">
+      <mat-icon>add_circle</mat-icon>
+      Novo zakazivanje
+    </a>
+    <a routerLink="/objects" class="action-btn secondary">
+      <mat-icon>account_balance</mat-icon>
+      Vjerski objekti
+    </a>
+  </div>
+
+  <!-- Termini -->
+  <div class="appointments-section">
+    <h2 class="section-title">Moji termini</h2>
+
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && appointments.length === 0">
+      <mat-icon>event_busy</mat-icon>
+      <p>Nemate zakazanih termina</p>
+      <a routerLink="/booking" class="action-btn" style="margin-top: 16px">
+        Zakaži prvi obred
+      </a>
+    </div>
+
+    <mat-tab-group *ngIf="!loading && appointments.length > 0">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>all_inclusive</mat-icon>
+          Svi ({{ appointments.length }})
+        </ng-template>
+        <div class="appointments-list">
+          <div class="appointment-card" *ngFor="let a of appointments">
+            <ng-container *ngTemplateOutlet="appointmentTpl; context: {a}"></ng-container>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>hourglass_empty</mat-icon>
+          Na čekanju ({{ pending.length }})
+        </ng-template>
+        <div class="appointments-list">
+          <div class="appointment-card" *ngFor="let a of pending">
+            <ng-container *ngTemplateOutlet="appointmentTpl; context: {a}"></ng-container>
+          </div>
+          <div class="empty-state" *ngIf="pending.length === 0">
+            <mat-icon>check_circle_outline</mat-icon>
+            <p>Nema termina na čekanju</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>check_circle</mat-icon>
+          Odobreni ({{ approved.length }})
+        </ng-template>
+        <div class="appointments-list">
+          <div class="appointment-card" *ngFor="let a of approved">
+            <ng-container *ngTemplateOutlet="appointmentTpl; context: {a}"></ng-container>
+          </div>
+          <div class="empty-state" *ngIf="approved.length === 0">
+            <mat-icon>event_busy</mat-icon>
+            <p>Nema odobrenih termina</p>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<ng-template #appointmentTpl let-a="a">
+  <div class="appt-header">
+    <div class="ceremony-info">
+      <mat-icon>{{ a.ceremonyIcon || 'event' }}</mat-icon>
+      <strong>{{ a.ceremonyTypeName }}</strong>
+    </div>
+    <span class="status-badge" [class]="getStatusClass(a.status)">
+      {{ a.statusLabel }}
+    </span>
+  </div>
+  <div class="appt-details">
+    <div class="detail-item">
+      <mat-icon>account_balance</mat-icon>
+      <span>{{ a.religiousObjectName }}, {{ a.religiousObjectCity }}</span>
+    </div>
+    <div class="detail-item">
+      <mat-icon>calendar_today</mat-icon>
+      <span>{{ formatDate(a.requestedDate) }} u {{ a.requestedTime }}</span>
+    </div>
+    <div class="detail-item" *ngIf="a.notes">
+      <mat-icon>notes</mat-icon>
+      <span>{{ a.notes }}</span>
+    </div>
+    <div class="detail-item clergy-note" *ngIf="a.clergypersonNote">
+      <mat-icon>comment</mat-icon>
+      <span><em>Napomena: {{ a.clergypersonNote }}</em></span>
+    </div>
+    <div class="detail-item alt-date" *ngIf="a.alternativeDate">
+      <mat-icon>event_repeat</mat-icon>
+      <span>Predloženi termin: {{ formatDate(a.alternativeDate) }} u {{ a.alternativeTime }}</span>
+    </div>
+  </div>
+</ng-template>

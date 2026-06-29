@@ -1,0 +1,17 @@
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <span class="symbol">{{ themeService.selectedReligion()?.iconSymbol || '✝' }}</span>
+      <span class="name">E-Religija</span>
+    </div>
+    <div class="footer-links">
+      <a routerLink="/">Početna</a>
+      <a routerLink="/objects">Vjerski objekti</a>
+      <a routerLink="/auth/login">Prijava</a>
+      <a routerLink="/auth/register">Registracija</a>
+    </div>
+    <div class="footer-copy">
+      <p>&copy; {{ year }} E-Religija. Sva prava zadržana.</p>
+    </div>
+  </div>
+</footer>

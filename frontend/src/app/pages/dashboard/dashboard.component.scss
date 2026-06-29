@@ -1,0 +1,254 @@
+.dashboard-hero {
+  background: var(--gradient-bg);
+  padding: 48px 24px 64px;
+  transition: background 0.5s ease;
+}
+
+.dashboard-hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: white;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.user-info {
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  p {
+    opacity: 0.85;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .religion-symbol { font-size: 1.2rem; }
+}
+
+.page-container {
+  margin-top: -24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: 1fr 1fr; }
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #ffc107;
+
+  &.approved { border-left-color: #28a745; }
+  &.rejected { border-left-color: #dc3545; }
+  &.total { border-left-color: var(--color-primary); }
+
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: #ffc107;
+    opacity: 0.8;
+  }
+
+  &.approved mat-icon { color: #28a745; }
+  &.rejected mat-icon { color: #dc3545; }
+  &.total mat-icon { color: var(--color-primary); }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    font-family: var(--font-heading);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    margin-top: 2px;
+  }
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &.secondary {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+
+    &:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+  }
+}
+
+.appointments-section {
+  h2 { margin-bottom: 16px; }
+}
+
+.appointments-list {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.appointment-card {
+  background: var(--color-surface);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.appt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ceremony-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  mat-icon {
+    color: var(--color-primary);
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  strong {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+  }
+}
+
+.appt-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &.clergy-note {
+    color: var(--color-primary);
+    font-style: italic;
+  }
+
+  &.alt-date {
+    color: #856404;
+  }
+}
+
+// Status badges override
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.pending { background: #fff3cd; color: #856404; }
+  &.approved { background: #d1e7dd; color: #0f5132; }
+  &.rejected { background: #f8d7da; color: #842029; }
+}

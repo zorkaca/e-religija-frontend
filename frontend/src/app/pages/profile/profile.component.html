@@ -1,0 +1,69 @@
+<div class="page-container">
+  <a routerLink="/dashboard" class="back-link">
+    <mat-icon>arrow_back</mat-icon> Nazad na termine
+  </a>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <div class="profile-layout" *ngIf="!loading && user">
+    <section class="profile-card">
+      <div class="profile-header">
+        <div class="avatar">{{ user.firstName[0] }}{{ user.lastName[0] }}</div>
+        <div>
+          <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+          <p>{{ user.email }}</p>
+          <span class="role-badge">
+            {{ user.role === UserRole.Admin ? 'Administrator' : user.role === UserRole.Clergy ? 'Svešteno lice' : 'Korisnik' }}
+          </span>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <h2>Lični podaci</h2>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Ime</mat-label>
+            <input matInput formControlName="firstName">
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prezime</mat-label>
+            <input matInput formControlName="lastName">
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Telefon</mat-label>
+            <input matInput formControlName="phoneNumber">
+            <mat-icon matPrefix>phone</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Vjera</mat-label>
+            <mat-select formControlName="religionId">
+              <mat-option [value]="null">Nije odabrano</mat-option>
+              <mat-option *ngFor="let r of religions" [value]="r.id">
+                {{ r.iconSymbol }} {{ r.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>auto_awesome</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="saving || form.invalid">
+          <mat-spinner diameter="18" *ngIf="saving"></mat-spinner>
+          <span *ngIf="!saving">Sačuvaj promjene</span>
+        </button>
+      </form>
+    </section>
+
+    <aside class="info-card" *ngIf="user.religiousObjectName">
+      <h3><mat-icon>account_balance</mat-icon> Dodijeljeni objekat</h3>
+      <p>{{ user.religiousObjectName }}</p>
+    </aside>
+  </div>
+</div>

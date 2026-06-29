@@ -1,0 +1,282 @@
+.clergy-hero {
+  background: var(--gradient-bg);
+  padding: 48px 24px 64px;
+  text-align: center;
+  transition: background 0.5s ease;
+
+  .hero-content {
+    color: white;
+    mat-icon { font-size: 3rem; width: 3rem; height: 3rem; opacity: .9; margin-bottom: 12px; }
+    h1 { font-family: var(--font-heading); font-size: 2.2rem; color: white; margin-bottom: 6px; }
+    p { opacity: .85; font-size: 1.1rem; }
+  }
+}
+
+.page-container { margin-top: -24px; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.06);
+  border-left: 4px solid;
+
+  &.pending-card { border-left-color: #ffc107; mat-icon { color: #ffc107; } }
+  &.approved-card { border-left-color: #28a745; mat-icon { color: #28a745; } }
+  &.rejected-card { border-left-color: #dc3545; mat-icon { color: #dc3545; } }
+  &.total-card { border-left-color: var(--color-primary); mat-icon { color: var(--color-primary); } }
+
+  mat-icon { font-size: 2rem; width: 2rem; height: 2rem; }
+  div { display: flex; flex-direction: column; }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--color-primary); font-family: var(--font-heading); line-height: 1; }
+  .stat-label { font-size: .8rem; color: var(--color-text-light); margin-top: 2px; }
+}
+
+.action-panel {
+  background: var(--color-surface);
+  border-radius: 16px;
+  border: 2px solid var(--color-primary);
+  padding: 24px;
+  margin-bottom: 24px;
+  animation: fadeIn .3s ease;
+  box-shadow: 0 8px 30px rgba(0,0,0,.1);
+}
+
+.action-panel-content {
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin-bottom: 20px;
+    mat-icon { color: var(--color-secondary); }
+  }
+}
+
+.action-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  textarea, input, select {
+    padding: 12px;
+    border: 1.5px solid rgba(0,0,0,.15);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: .95rem;
+    resize: vertical;
+    transition: border-color .2s;
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.action-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1.5px solid rgba(0,0,0,.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  color: var(--color-text-light);
+  transition: all .2s;
+  &:hover { border-color: var(--color-primary); color: var(--color-primary); }
+}
+
+.confirm-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 700;
+  color: white;
+  transition: all .2s;
+
+  &.approve { background: #28a745; &:hover:not(:disabled) { background: #218838; } }
+  &.reject { background: #dc3545; &:hover:not(:disabled) { background: #c82333; } }
+  &:disabled { opacity: .7; cursor: not-allowed; }
+}
+
+.appointments-list {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.appointment-card {
+  background: var(--color-surface);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  transition: all .3s;
+  border: 1px solid rgba(0,0,0,.04);
+
+  &:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+  &.clergy-card {
+    border-left: 4px solid #ffc107;
+  }
+}
+
+.appt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    strong { font-size: 1rem; color: var(--color-primary); }
+    span { font-size: .8rem; color: var(--color-text-light); }
+  }
+}
+
+.appt-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: .9rem;
+  color: var(--color-text-light);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--color-primary); flex-shrink: 0; margin-top: 2px; }
+  &.meta { opacity: .7; font-size: .8rem; }
+}
+
+.appt-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+.approve-btn, .reject-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+.approve-btn {
+  background: #d1e7dd;
+  color: #0f5132;
+  &:hover:not(:disabled) { background: #28a745; color: white; }
+}
+
+.reject-btn {
+  background: #f8d7da;
+  color: #842029;
+  &:hover:not(:disabled) { background: #dc3545; color: white; }
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 600;
+  &.pending { background: #fff3cd; color: #856404; }
+  &.approved { background: #d1e7dd; color: #0f5132; }
+  &.rejected { background: #f8d7da; color: #842029; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-light);
+  mat-icon { font-size: 4rem; opacity: .3; margin-bottom: 16px; display: block; }
+  p { font-size: 1.1rem; }
+}

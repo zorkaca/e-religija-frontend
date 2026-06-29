@@ -1,0 +1,68 @@
+<div class="objects-hero">
+  <h1>Vjerski objekti</h1>
+  <p>Crkve, manastiri, džamije i mesdžidi u BiH</p>
+</div>
+
+<div class="page-container">
+  <!-- Filteri -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label>Vjera</label>
+      <select [(ngModel)]="selectedReligionId" (change)="loadObjects()" class="filter-select">
+        <option [value]="null">Sve vjere</option>
+        <option *ngFor="let r of religions" [value]="r.id">{{ r.iconSymbol }} {{ r.name }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Grad</label>
+      <input type="text" [(ngModel)]="searchCity" (input)="loadObjects()" placeholder="Pretraži po gradu..." class="filter-input">
+    </div>
+    <div class="filter-result">
+      <mat-icon>location_on</mat-icon>
+      <span>{{ objects.length }} {{ objects.length === 1 ? 'objekat' : 'objekata' }}</span>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Učitavanje objekata...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && objects.length === 0">
+    <mat-icon>search_off</mat-icon>
+    <p>Nema pronađenih objekata</p>
+  </div>
+
+  <div class="objects-grid" *ngIf="!loading && objects.length > 0">
+    <a [routerLink]="['/objects', o.id]" class="object-card" *ngFor="let o of objects">
+      <div class="object-type-badge">
+        <mat-icon>{{ getObjectIcon(o.objectTypeLabel) }}</mat-icon>
+        {{ o.objectTypeLabel }}
+      </div>
+      <h3>{{ o.name }}</h3>
+      <div class="object-info">
+        <div class="info-row">
+          <mat-icon>location_on</mat-icon>
+          <span>{{ o.address }}, {{ o.city }}</span>
+        </div>
+        <div class="info-row" *ngIf="o.workingHours">
+          <mat-icon>schedule</mat-icon>
+          <span>{{ o.workingHours }}</span>
+        </div>
+        <div class="info-row" *ngIf="o.clergypersonName">
+          <mat-icon>person</mat-icon>
+          <span>{{ o.clergypersonName }}</span>
+        </div>
+        <div class="info-row" *ngIf="o.phoneNumber">
+          <mat-icon>phone</mat-icon>
+          <span>{{ o.phoneNumber }}</span>
+        </div>
+      </div>
+      <div class="religion-tag">{{ o.religionName }}</div>
+      <div class="card-action">
+        <mat-icon>arrow_forward</mat-icon>
+        Pogledaj detalje
+      </div>
+    </a>
+  </div>
+</div>

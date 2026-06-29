@@ -1,0 +1,272 @@
+<div class="booking-hero">
+  <div class="hero-content">
+    <mat-icon>event_available</mat-icon>
+    <h1>Zakazivanje vjerskog obreda</h1>
+    <p>Popunite formu i pošaljite zahtjev sveštenom licu</p>
+  </div>
+</div>
+
+<div class="page-container">
+
+  <!-- Uspješno slanje -->
+  <div class="success-card" *ngIf="submitted">
+    <div class="success-icon">✓</div>
+    <h2>Zahtjev je uspješno poslan!</h2>
+    <p>Vaš zahtjev je proslijeđen sveštenom licu. Dobićete obavještenje čim termin bude odobren ili odbijen.</p>
+    <div class="success-actions">
+      <a routerLink="/dashboard" class="action-btn">
+        <mat-icon>dashboard</mat-icon>
+        Prati status
+      </a>
+      <button class="action-btn secondary" (click)="resetForm()">
+        <mat-icon>add</mat-icon>
+        Novo zakazivanje
+      </button>
+    </div>
+  </div>
+
+  <!-- Stepper forma -->
+  <mat-stepper linear #stepper *ngIf="!submitted" class="booking-stepper">
+
+    <!-- Korak 1: Vjera i Objekat -->
+    <mat-step [stepControl]="step1Form" label="Vjera i objekat">
+      <form [formGroup]="step1Form">
+        <div class="step-content">
+          <h3 class="step-title">
+            <mat-icon>church</mat-icon>
+            Izaberite vjeru i vjerski objekat
+          </h3>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Vjera</mat-label>
+            <mat-select formControlName="religionId" (selectionChange)="onReligionChange($event.value)">
+              <mat-option *ngFor="let r of religions" [value]="r.id">
+                {{ r.iconSymbol }} {{ r.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>auto_awesome</mat-icon>
+            <mat-error>Vjera je obavezna</mat-error>
+          </mat-form-field>
+
+          <!-- Loading objekata -->
+          <div class="loading-row" *ngIf="loadingObjects">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Učitavanje objekata...</span>
+          </div>
+
+          <!-- Greška pri učitavanju -->
+          <div class="alert-box error" *ngIf="objectsLoadError && !loadingObjects">
+            <mat-icon>error_outline</mat-icon>
+            <span>Greška pri učitavanju objekata. Provjerite da li je server dostupan.</span>
+          </div>
+
+          <!-- Nema objekata -->
+          <div class="alert-box warning" *ngIf="!loadingObjects && !objectsLoadError && step1Form.get('religionId')?.value && objects.length === 0">
+            <mat-icon>info_outline</mat-icon>
+            <span>Nema dostupnih vjerskih objekata za izabranu vjeru.</span>
+          </div>
+
+          <!-- Dropdown objekata -->
+          <mat-form-field appearance="outline" *ngIf="objects.length > 0 && !loadingObjects">
+            <mat-label>Vjerski objekat</mat-label>
+            <mat-select formControlName="religiousObjectId">
+              <mat-option *ngFor="let o of objects" [value]="o.id">
+                <strong>{{ o.name }}</strong> — {{ o.city }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>account_balance</mat-icon>
+            <mat-error>Objekat je obavezan</mat-error>
+          </mat-form-field>
+
+          <!-- Info o izabranom objektu -->
+          <div class="object-info-card" *ngIf="getSelectedObject() as obj">
+            <div class="info-row"><mat-icon>location_on</mat-icon><span>{{ obj.address }}, {{ obj.city }}</span></div>
+            <div class="info-row" *ngIf="obj.workingHours"><mat-icon>schedule</mat-icon><span>{{ obj.workingHours }}</span></div>
+            <div class="info-row" *ngIf="obj.clergypersonName"><mat-icon>person</mat-icon><span>{{ obj.clergypersonName }}</span></div>
+            <div class="info-row" *ngIf="obj.phoneNumber"><mat-icon>phone</mat-icon><span>{{ obj.phoneNumber }}</span></div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <span class="validation-hint" *ngIf="step1Form.invalid">
+            <mat-icon>info</mat-icon>
+            {{ step1ValidationMessage }}
+          </span>
+          <button
+            mat-raised-button
+            matStepperNext
+            type="button"
+            class="next-btn"
+            [disabled]="step1Form.invalid || loadingObjects"
+            [matTooltip]="step1Form.invalid ? step1ValidationMessage : ''"
+          >
+            Dalje <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Korak 2: Obred i Termin -->
+    <mat-step [stepControl]="step2Form" label="Obred i termin">
+      <form [formGroup]="step2Form">
+        <div class="step-content">
+          <h3 class="step-title">
+            <mat-icon>event</mat-icon>
+            Izaberite vrstu obreda i termin
+          </h3>
+
+          <!-- Loading obreda -->
+          <div class="loading-row" *ngIf="loadingCeremonies">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Učitavanje obreda...</span>
+          </div>
+
+          <div class="ceremony-grid" *ngIf="ceremonyTypes.length > 0 && !loadingCeremonies">
+            <div
+              class="ceremony-option"
+              *ngFor="let ct of ceremonyTypes"
+              [class.selected]="step2Form.value.ceremonyTypeId === ct.id"
+              (click)="step2Form.patchValue({ ceremonyTypeId: ct.id })"
+            >
+              <mat-icon>{{ ct.iconName || 'star' }}</mat-icon>
+              <span>{{ ct.name }}</span>
+              <small>{{ ct.durationMinutes }} min</small>
+            </div>
+          </div>
+
+          <div class="date-time-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Datum</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="requestedDate" [min]="minDate" readonly>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-icon matPrefix>calendar_today</mat-icon>
+              <mat-error>Datum je obavezan</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Termin</mat-label>
+              <mat-select formControlName="requestedTime">
+                <mat-option *ngFor="let t of timeSlots" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>schedule</mat-icon>
+              <mat-hint *ngIf="getSelectedObject()?.workingHours">Radno vrijeme: {{ getSelectedObject()?.workingHours }}</mat-hint>
+              <mat-error>Termin je obavezan</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="checklist-card" *ngIf="showWeddingChecklist">
+            <h4><mat-icon>checklist</mat-icon> Checklist dokumenata za vjenčanje</h4>
+            <p class="checklist-intro">
+              Prije slanja zahtjeva provjerite da imate pripremu prema pravilima vaše vjerske zajednice u BiH.
+            </p>
+            <label class="checklist-item" *ngFor="let item of weddingChecklist">
+              <mat-checkbox
+                [checked]="isChecklistItemChecked(item)"
+                (change)="toggleChecklistItem(item, $event.checked)"
+              ></mat-checkbox>
+              <span>
+                {{ item.text }}
+                <strong *ngIf="item.required"> *</strong>
+              </span>
+            </label>
+            <p class="checklist-note" *ngIf="!requiredChecklistComplete">
+              Označite sve obavezne stavke (*) prije slanja zahtjeva.
+            </p>
+          </div>
+
+          <!-- Provjera dostupnosti -->
+          <div class="availability-section" *ngIf="step2Form.value.requestedDate && step2Form.value.requestedTime && step2Form.value.ceremonyTypeId">
+            <button type="button" class="check-btn" (click)="checkAvailability()" [disabled]="checkingAvailability">
+              <mat-spinner diameter="18" *ngIf="checkingAvailability"></mat-spinner>
+              <mat-icon *ngIf="!checkingAvailability">search</mat-icon>
+              Provjeri dostupnost
+            </button>
+
+            <div class="availability-result available" *ngIf="availabilityResult?.isAvailable">
+              <mat-icon>check_circle</mat-icon>
+              {{ availabilityResult!.message }}
+            </div>
+
+            <div class="availability-result unavailable" *ngIf="availabilityResult && !availabilityResult.isAvailable">
+              <mat-icon>cancel</mat-icon>
+              <div>
+                <p>{{ availabilityResult.message }}</p>
+                <div class="suggested-times" *ngIf="availabilityResult.suggestedTimes?.length">
+                  <button *ngFor="let t of availabilityResult.suggestedTimes" class="time-chip" (click)="selectSuggestedTime(t)">{{ t }}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon> Nazad
+          </button>
+          <span class="validation-hint" *ngIf="step2ValidationMessage">
+            <mat-icon>info</mat-icon>
+            {{ step2ValidationMessage }}
+          </span>
+          <button
+            mat-raised-button
+            matStepperNext
+            type="button"
+            class="next-btn"
+            [disabled]="step2Form.invalid || !requiredChecklistComplete || !isAvailabilityConfirmed"
+            [matTooltip]="step2ValidationMessage"
+          >
+            Dalje <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Korak 3: Potvrda -->
+    <mat-step label="Potvrda">
+      <form [formGroup]="step3Form" (ngSubmit)="submit()">
+        <div class="step-content">
+          <h3 class="step-title">
+            <mat-icon>rate_review</mat-icon>
+            Pregled zahtjeva
+          </h3>
+
+          <div class="review-card">
+            <div class="review-row">
+              <mat-icon>auto_awesome</mat-icon>
+              <div><label>Vjera</label><span>{{ getSelectedReligion()?.iconSymbol }} {{ getSelectedReligion()?.name }}</span></div>
+            </div>
+            <div class="review-row">
+              <mat-icon>account_balance</mat-icon>
+              <div><label>Objekat</label><span>{{ getSelectedObject()?.name }}, {{ getSelectedObject()?.city }}</span></div>
+            </div>
+            <div class="review-row">
+              <mat-icon>{{ getSelectedCeremony()?.iconName || 'star' }}</mat-icon>
+              <div><label>Obred</label><span>{{ getSelectedCeremony()?.name }}</span></div>
+            </div>
+            <div class="review-row">
+              <mat-icon>calendar_today</mat-icon>
+              <div><label>Datum i termin</label><span>{{ formatDate(step2Form.value.requestedDate) }} u {{ step2Form.value.requestedTime }}</span></div>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Napomena (opcionalno)</mat-label>
+            <textarea matInput formControlName="notes" rows="3" placeholder="Unesite dodatne informacije..."></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">
+            <mat-icon>arrow_back</mat-icon> Nazad
+          </button>
+          <button type="submit" class="submit-btn" [disabled]="submitting">
+            <mat-spinner diameter="20" *ngIf="submitting"></mat-spinner>
+            <span *ngIf="!submitting"><mat-icon>send</mat-icon> Pošalji zahtjev</span>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>
