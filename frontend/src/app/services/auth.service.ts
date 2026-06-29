@@ -27,10 +27,33 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
+    this.clearSession();
     this.router.navigate(['/']);
+  }
+
+  handleExpiredSession(): void {
+    this.clearSession();
+    this.router.navigate(['/auth/login'], {
+      queryParams: { sessionExpired: 'true' }
+    });
+  }
+
+  isTokenExpired(token?: string | null): boolean {
+    const value = token ?? this.getToken();
+    if (!value) {
+      return true;
+    }
+
+    try {
+      const payload = JSON.parse(atob(value.split('.')[1]));
+      if (!payload?.exp) {
+        return false;
+      }
+
+      return Date.now() >= payload.exp * 1000;
+    } catch {
+      return true;
+    }
   }
 
   getMe(): Observable<User> {
@@ -54,7 +77,17 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+
+    if (this.isTokenExpired(token)) {
+      this.clearSession();
+      return false;
+    }
+
+    return true;
   }
 
   getToken(): string | null {
@@ -107,13 +140,23 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
-    if (token && userStr) {
-      try {
-        const user = this.normalizeUser(JSON.parse(userStr));
-        this.currentUser.set(user);
-      } catch {
-        this.logout();
-      }
+
+    if (!token || !userStr || this.isTokenExpired(token)) {
+      this.clearSession();
+      return;
     }
+
+    try {
+      const user = this.normalizeUser(JSON.parse(userStr));
+      this.currentUser.set(user);
+    } catch {
+      this.clearSession();
+    }
+  }
+
+  private clearSession(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.currentUser.set(null);
   }
 }

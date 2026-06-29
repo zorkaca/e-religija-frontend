@@ -15,7 +15,7 @@ export class AppointmentService {
     ceremonyTypeId: number;
     requestedDate: string;
     requestedTime: string;
-    notes: string;
+    notes?: string;
   }): Observable<Appointment> {
     return this.http.post<Appointment>(this.API, data);
   }

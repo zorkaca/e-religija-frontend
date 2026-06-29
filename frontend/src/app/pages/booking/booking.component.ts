@@ -86,12 +86,20 @@ export class BookingComponent implements OnInit {
 
     this.step1Form.get('religiousObjectId')?.valueChanges.subscribe((objectId: number | null) => {
       this.updateTimeSlots(objectId);
-      this.availabilityResult = null;
+      this.resetAvailabilityCheck();
     });
 
     this.step2Form.get('ceremonyTypeId')?.valueChanges.subscribe(() => {
       this.updateWeddingChecklist();
-      this.availabilityResult = null;
+      this.resetAvailabilityCheck();
+    });
+
+    this.step2Form.get('requestedDate')?.valueChanges.subscribe(() => {
+      this.resetAvailabilityCheck();
+    });
+
+    this.step2Form.get('requestedTime')?.valueChanges.subscribe(() => {
+      this.resetAvailabilityCheck();
     });
 
     this.religionService.getReligions().subscribe({
@@ -115,7 +123,7 @@ export class BookingComponent implements OnInit {
     this.step1Form.patchValue({ religiousObjectId: null });
     this.objects = [];
     this.ceremonyTypes = [];
-    this.availabilityResult = null;
+    this.resetAvailabilityCheck();
     this.objectsLoadError = false;
     this.checkedChecklistItems.clear();
     this.weddingChecklist = [];
@@ -213,6 +221,34 @@ export class BookingComponent implements OnInit {
     return this.checkedChecklistItems.has(item.text);
   }
 
+  get isAvailabilityConfirmed(): boolean {
+    return this.availabilityResult?.isAvailable === true;
+  }
+
+  get step2ValidationMessage(): string {
+    if (this.step2Form.invalid) {
+      return 'Popunite obred, datum i termin';
+    }
+
+    if (!this.requiredChecklistComplete) {
+      return 'Označite sve obavezne stavke na checklisti';
+    }
+
+    if (!this.availabilityResult) {
+      return 'Provjerite dostupnost termina prije nastavka';
+    }
+
+    if (!this.isAvailabilityConfirmed) {
+      return 'Izabrani termin nije slobodan. Odaberite predloženi termin i provjerite ponovo';
+    }
+
+    return '';
+  }
+
+  private resetAvailabilityCheck(): void {
+    this.availabilityResult = null;
+  }
+
   checkAvailability(): void {
     const { ceremonyTypeId, requestedDate, requestedTime } = this.step2Form.value;
     const { religiousObjectId } = this.step1Form.value;
@@ -221,7 +257,7 @@ export class BookingComponent implements OnInit {
     }
 
     this.checkingAvailability = true;
-    this.availabilityResult = null;
+    this.resetAvailabilityCheck();
     const date = new Date(requestedDate);
     date.setHours(12);
 
@@ -254,6 +290,14 @@ export class BookingComponent implements OnInit {
       return;
     }
 
+    if (!this.isAvailabilityConfirmed) {
+      this.snackBar.open('Provjerite dostupnost termina prije slanja zahtjeva.', 'OK', {
+        duration: 4000,
+        panelClass: 'error-snack'
+      });
+      return;
+    }
+
     this.submitting = true;
     const date = new Date(this.step2Form.value.requestedDate);
     date.setHours(12);
@@ -263,7 +307,7 @@ export class BookingComponent implements OnInit {
       ceremonyTypeId: this.step2Form.value.ceremonyTypeId,
       requestedDate: date.toISOString(),
       requestedTime: this.step2Form.value.requestedTime,
-      notes: this.step3Form.value.notes
+      notes: (this.step3Form.value.notes ?? '').trim()
     }).subscribe({
       next: () => {
         this.submitted = true;
@@ -272,7 +316,10 @@ export class BookingComponent implements OnInit {
       },
       error: (err) => {
         this.submitting = false;
-        this.snackBar.open(err.error?.message || 'Greška pri zakazivanju.', 'OK', { duration: 4000, panelClass: 'error-snack' });
+        const msg = err.status === 401
+          ? 'Sesija je istekla. Prijavite se ponovo.'
+          : (err.error?.message || 'Greška pri zakazivanju.');
+        this.snackBar.open(msg, 'OK', { duration: 4000, panelClass: 'error-snack' });
       }
     });
   }
@@ -294,7 +341,7 @@ export class BookingComponent implements OnInit {
     this.step2Form.reset();
     this.step3Form.reset();
     this.submitted = false;
-    this.availabilityResult = null;
+    this.resetAvailabilityCheck();
     this.objects = [];
     this.ceremonyTypes = [];
     this.objectsLoadError = false;
@@ -313,7 +360,7 @@ export class BookingComponent implements OnInit {
 
   selectSuggestedTime(time: string): void {
     this.step2Form.patchValue({ requestedTime: time });
-    this.availabilityResult = null;
+    this.resetAvailabilityCheck();
   }
 
   get step1ValidationMessage(): string {

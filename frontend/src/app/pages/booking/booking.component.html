@@ -204,12 +204,17 @@
           <button mat-button matStepperPrevious type="button">
             <mat-icon>arrow_back</mat-icon> Nazad
           </button>
+          <span class="validation-hint" *ngIf="step2ValidationMessage">
+            <mat-icon>info</mat-icon>
+            {{ step2ValidationMessage }}
+          </span>
           <button
             mat-raised-button
             matStepperNext
             type="button"
             class="next-btn"
-            [disabled]="step2Form.invalid || !requiredChecklistComplete"
+            [disabled]="step2Form.invalid || !requiredChecklistComplete || !isAvailabilityConfirmed"
+            [matTooltip]="step2ValidationMessage"
           >
             Dalje <mat-icon>arrow_forward</mat-icon>
           </button>
