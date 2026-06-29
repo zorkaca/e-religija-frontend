@@ -1,0 +1,215 @@
+<div class="clergy-hero">
+  <div class="hero-content">
+    <mat-icon>manage_accounts</mat-icon>
+    <h1>Panel sveštenog lica</h1>
+    <p *ngIf="user?.religiousObjectName">{{ user?.religiousObjectName }}</p>
+  </div>
+</div>
+
+<div class="page-container">
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card pending-card">
+      <mat-icon>pending_actions</mat-icon>
+      <div>
+        <span class="stat-num">{{ pending.length }}</span>
+        <span class="stat-label">Na čekanju</span>
+      </div>
+    </div>
+    <div class="stat-card approved-card">
+      <mat-icon>check_circle</mat-icon>
+      <div>
+        <span class="stat-num">{{ approved.length }}</span>
+        <span class="stat-label">Odobreno</span>
+      </div>
+    </div>
+    <div class="stat-card rejected-card">
+      <mat-icon>cancel</mat-icon>
+      <div>
+        <span class="stat-num">{{ rejected.length }}</span>
+        <span class="stat-label">Odbijeno</span>
+      </div>
+    </div>
+    <div class="stat-card total-card">
+      <mat-icon>event_note</mat-icon>
+      <div>
+        <span class="stat-num">{{ appointments.length }}</span>
+        <span class="stat-label">Ukupno</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action panel -->
+  <div class="action-panel" *ngIf="activeAction">
+    <div class="action-panel-content">
+      <h3>
+        <mat-icon>{{ activeAction.type === 'approve' ? 'check_circle' : 'cancel' }}</mat-icon>
+        {{ activeAction.type === 'approve' ? 'Odobravanje termina' : 'Odbijanje termina' }}
+      </h3>
+
+      <div class="action-form">
+        <div class="form-group">
+          <label>Napomena (opcionalno)</label>
+          <textarea [(ngModel)]="clergyNote" rows="3"
+            placeholder="{{ activeAction.type === 'approve' ? 'Napomena korisniku o odobrenom terminu...' : 'Razlog odbijanja...' }}"></textarea>
+        </div>
+
+        <div class="form-row" *ngIf="activeAction.type === 'reject'">
+          <div class="form-group">
+            <label>Predloženi alternativni datum (opcionalno)</label>
+            <input type="date" [(ngModel)]="alternativeDate">
+          </div>
+          <div class="form-group">
+            <label>Predloženi termin</label>
+            <select [(ngModel)]="alternativeTime">
+              <option value="">— Izaberite —</option>
+              <option value="08:00">08:00</option>
+              <option value="09:00">09:00</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="12:00">12:00</option>
+              <option value="13:00">13:00</option>
+              <option value="14:00">14:00</option>
+              <option value="15:00">15:00</option>
+              <option value="16:00">16:00</option>
+              <option value="17:00">17:00</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="action-btns">
+          <button class="cancel-btn" (click)="cancelAction()">
+            <mat-icon>close</mat-icon> Otkaži
+          </button>
+          <button
+            class="confirm-btn"
+            [class.approve]="activeAction.type === 'approve'"
+            [class.reject]="activeAction.type === 'reject'"
+            (click)="confirmAction()"
+            [disabled]="processingId !== null"
+          >
+            <mat-spinner diameter="18" *ngIf="processingId !== null"></mat-spinner>
+            <mat-icon *ngIf="processingId === null">{{ activeAction.type === 'approve' ? 'check' : 'block' }}</mat-icon>
+            {{ activeAction.type === 'approve' ? 'Odobri termin' : 'Odbij termin' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <mat-tab-group *ngIf="!loading">
+    <!-- Na čekanju -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>pending_actions</mat-icon>
+        Na čekanju ({{ pending.length }})
+      </ng-template>
+      <div class="appointments-list">
+        <div class="appointment-card clergy-card" *ngFor="let a of pending">
+          <div class="appt-header">
+            <div class="user-info">
+              <div class="user-avatar">{{ a.userFullName[0] }}</div>
+              <div>
+                <strong>{{ a.userFullName }}</strong>
+                <span>{{ a.userEmail }} • {{ a.userPhone }}</span>
+              </div>
+            </div>
+            <span class="status-badge pending">Na čekanju</span>
+          </div>
+
+          <div class="appt-details">
+            <div class="detail-row">
+              <mat-icon>{{ a.ceremonyIcon || 'event' }}</mat-icon>
+              <strong>{{ a.ceremonyTypeName }}</strong>
+            </div>
+            <div class="detail-row">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ formatDate(a.requestedDate) }} u {{ a.requestedTime }}</span>
+            </div>
+            <div class="detail-row" *ngIf="a.notes">
+              <mat-icon>notes</mat-icon>
+              <em>{{ a.notes }}</em>
+            </div>
+            <div class="detail-row meta">
+              <mat-icon>schedule</mat-icon>
+              <span>Zahtjev podnesen: {{ formatDate(a.createdAt) }}</span>
+            </div>
+          </div>
+
+          <div class="appt-actions">
+            <button class="approve-btn" (click)="startAction(a.id, 'approve')" [disabled]="processingId === a.id">
+              <mat-icon>check_circle</mat-icon> Odobri
+            </button>
+            <button class="reject-btn" (click)="startAction(a.id, 'reject')" [disabled]="processingId === a.id">
+              <mat-icon>cancel</mat-icon> Odbij
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="pending.length === 0">
+          <mat-icon>done_all</mat-icon>
+          <p>Nema zahtjeva na čekanju</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Odobreni -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>check_circle</mat-icon>
+        Odobreni ({{ approved.length }})
+      </ng-template>
+      <div class="appointments-list">
+        <div class="appointment-card" *ngFor="let a of approved">
+          <ng-container *ngTemplateOutlet="appointmentSummary; context: {a}"></ng-container>
+        </div>
+        <div class="empty-state" *ngIf="approved.length === 0">
+          <mat-icon>event_busy</mat-icon>
+          <p>Nema odobrenih termina</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Odbijeni -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>cancel</mat-icon>
+        Odbijeni ({{ rejected.length }})
+      </ng-template>
+      <div class="appointments-list">
+        <div class="appointment-card" *ngFor="let a of rejected">
+          <ng-container *ngTemplateOutlet="appointmentSummary; context: {a}"></ng-container>
+        </div>
+        <div class="empty-state" *ngIf="rejected.length === 0">
+          <mat-icon>event_available</mat-icon>
+          <p>Nema odbijenih termina</p>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #appointmentSummary let-a="a">
+  <div class="appt-header">
+    <div class="user-info">
+      <div class="user-avatar">{{ a.userFullName[0] }}</div>
+      <div>
+        <strong>{{ a.userFullName }}</strong>
+        <span>{{ a.ceremonyTypeName }}</span>
+      </div>
+    </div>
+    <span class="status-badge" [class]="getStatusClass(a.status)">{{ a.statusLabel }}</span>
+  </div>
+  <div class="detail-row">
+    <mat-icon>calendar_today</mat-icon>
+    <span>{{ formatDate(a.requestedDate) }} u {{ a.requestedTime }}</span>
+  </div>
+  <div class="detail-row" *ngIf="a.clergypersonNote">
+    <mat-icon>comment</mat-icon>
+    <em>{{ a.clergypersonNote }}</em>
+  </div>
+</ng-template>

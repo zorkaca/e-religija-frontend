@@ -1,0 +1,47 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-symbol">{{ themeService.selectedReligion()?.iconSymbol || '✝' }}</div>
+      <h1>Prijava</h1>
+      <p>Dobrodošli nazad u E-Religija</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Email adresa</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="vasa@email.com">
+        <mat-icon matPrefix>email</mat-icon>
+        <mat-error *ngIf="form.get('email')?.hasError('required')">Email je obavezan</mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">Unesite ispravnu email adresu</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Lozinka</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">Lozinka je obavezna</mat-error>
+      </mat-form-field>
+
+      <button type="submit" class="submit-btn" [disabled]="loading || form.invalid">
+        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        <span *ngIf="!loading">
+          <mat-icon>login</mat-icon>
+          Prijavi se
+        </span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Nemate nalog? <a routerLink="/auth/register">Registrujte se</a></p>
+      <a routerLink="/">← Nazad na početnu</a>
+    </div>
+
+    <div class="demo-credentials">
+      <p class="demo-title">Demo pristup</p>
+      <p><strong>Admin:</strong> admin&#64;ereligija.ba / Admin123!</p>
+    </div>
+  </div>
+</div>

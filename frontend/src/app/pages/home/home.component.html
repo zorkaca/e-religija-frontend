@@ -1,0 +1,112 @@
+<!-- Hero sekcija -->
+<section class="hero" [style.background]="selectedReligion?.backgroundGradient || 'var(--gradient-bg)'">
+  <div class="hero-content">
+    <div class="hero-symbol">{{ selectedReligion?.iconSymbol || '☩' }}</div>
+    <h1>Dobrodošli u E-Religija</h1>
+    <p>Platforma za online zakazivanje vjerskih obreda i aktivnosti</p>
+    <p class="hero-sub" *ngIf="selectedReligion">
+      Izabrali ste: <strong>{{ selectedReligion.name }}</strong>
+    </p>
+    <div class="hero-actions" *ngIf="selectedReligion">
+      <a [routerLink]="proceedLink" class="hero-btn-primary">
+        <mat-icon>arrow_forward</mat-icon>
+        {{ auth.isLoggedIn() ? 'Idi na profil' : 'Registrujte se' }}
+      </a>
+      <a routerLink="/objects" class="hero-btn-secondary">
+        <mat-icon>account_balance</mat-icon>
+        Pregledaj objekte
+      </a>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1200 80" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C300,80 900,0 1200,40 L1200,80 L0,80 Z" fill="var(--color-bg)"/>
+    </svg>
+  </div>
+</section>
+
+<!-- Izbor religije -->
+<section class="religion-selection">
+  <div class="page-container">
+    <div class="ornament"><span>✦</span></div>
+    <h2 class="section-title">Izaberite svoju vjeru</h2>
+    <p class="section-subtitle">Odabirom religije prilagođavamo aplikaciju vašem vjerskom kontekstu</p>
+
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Učitavanje...</p>
+    </div>
+
+    <div class="religion-grid" *ngIf="!loading">
+      <div
+        class="religion-card"
+        *ngFor="let religion of religions"
+        [class.selected]="selectedReligion?.id === religion.id"
+        (click)="selectReligion(religion)"
+        [style.--card-color]="religion.colorPrimary"
+        [style.--card-secondary]="religion.colorSecondary"
+      >
+        <div class="religion-symbol">{{ religion.iconSymbol }}</div>
+        <h3>{{ religion.name }}</h3>
+        <p>{{ religion.description }}</p>
+        <div class="selected-check" *ngIf="selectedReligion?.id === religion.id">
+          <mat-icon>check_circle</mat-icon>
+          Izabrano
+        </div>
+        <div class="color-bar" [style.background]="religion.backgroundGradient"></div>
+      </div>
+    </div>
+
+    <div class="proceed-section" *ngIf="selectedReligion && !loading">
+      <div class="selected-info">
+        <span class="selected-symbol">{{ selectedReligion.iconSymbol }}</span>
+        <div>
+          <strong>{{ selectedReligion.name }}</strong>
+          <span>je vaša izabrana vjera</span>
+        </div>
+      </div>
+      <a [routerLink]="proceedLink" class="btn-primary">
+        Dalje
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Funkcionalnosti -->
+<section class="features-section">
+  <div class="page-container">
+    <div class="ornament"><span>✦</span></div>
+    <h2 class="section-title">Šta nudimo</h2>
+    <p class="section-subtitle">Sve što vam je potrebno za zakazivanje vjerskih obreda</p>
+
+    <div class="grid-4">
+      <div class="feature-card" *ngFor="let feature of features; let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="feature-icon">
+          <mat-icon>{{ feature.icon }}</mat-icon>
+        </div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA sekcija -->
+<section class="cta-section" [style.background]="selectedReligion?.backgroundGradient || 'var(--gradient-bg)'">
+  <div class="cta-content">
+    <h2>Spremni za zakazivanje?</h2>
+    <p>Pridružite se hiljadama vjernika koji koriste E-Religija platformu</p>
+    <div class="cta-actions">
+      <a routerLink="/auth/register" class="cta-btn-primary" *ngIf="!auth.isLoggedIn()">
+        Registrujte se besplatno
+      </a>
+      <a routerLink="/booking" class="cta-btn-primary" *ngIf="auth.isLoggedIn()">
+        Zakažite obred
+      </a>
+      <a routerLink="/objects" class="cta-btn-secondary">
+        Pregledaj objekte
+      </a>
+    </div>
+  </div>
+</section>

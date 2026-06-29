@@ -1,0 +1,59 @@
+<div class="page-container">
+  <a routerLink="/objects" class="back-link">
+    <mat-icon>arrow_back</mat-icon> Nazad na listu
+  </a>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <div *ngIf="object && !loading">
+    <div class="object-hero">
+      <div class="hero-text">
+        <span class="religion-tag">{{ object.religionName }}</span>
+        <h1>{{ object.name }}</h1>
+        <p class="object-type">{{ object.objectTypeLabel }}</p>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="info-card">
+        <h3><mat-icon>info</mat-icon> Informacije</h3>
+        <div class="info-row"><mat-icon>location_on</mat-icon><div><label>Adresa</label><span>{{ object.address }}, {{ object.city }}</span></div></div>
+        <div class="info-row" *ngIf="object.workingHours"><mat-icon>schedule</mat-icon><div><label>Radno vrijeme</label><span>{{ object.workingHours }}</span></div></div>
+        <div class="info-row" *ngIf="object.phoneNumber"><mat-icon>phone</mat-icon><div><label>Telefon</label><span>{{ object.phoneNumber }}</span></div></div>
+        <div class="info-row" *ngIf="object.email"><mat-icon>email</mat-icon><div><label>Email</label><span>{{ object.email }}</span></div></div>
+        <div class="info-row" *ngIf="object.clergypersonName"><mat-icon>person</mat-icon><div><label>Svešteno lice</label><span>{{ object.clergypersonName }}</span></div></div>
+        <div class="info-row" *ngIf="object.description"><mat-icon>notes</mat-icon><div><label>Opis</label><span>{{ object.description }}</span></div></div>
+      </div>
+
+      <div class="action-card">
+        <h3><mat-icon>event</mat-icon> Zakazivanje</h3>
+        <p>Zakažite vjerski obred u ovom objektu online.</p>
+        <a routerLink="/booking" [queryParams]="{objectId: object.id}" class="book-btn" *ngIf="auth.isLoggedIn()">
+          <mat-icon>add_circle</mat-icon>
+          Zakaži obred
+        </a>
+        <a routerLink="/auth/login" class="book-btn secondary" *ngIf="!auth.isLoggedIn()">
+          <mat-icon>login</mat-icon>
+          Prijavite se za zakazivanje
+        </a>
+      </div>
+    </div>
+
+    <div class="map-card" *ngIf="mapEmbedUrl">
+      <div class="map-header">
+        <h3><mat-icon>map</mat-icon> Lokacija na mapi</h3>
+        <a [href]="mapExternalUrl" target="_blank" rel="noopener noreferrer" class="map-link">
+          Otvori u OpenStreetMap
+        </a>
+      </div>
+      <iframe
+        [src]="mapEmbedUrl"
+        title="Mapa lokacije {{ object.name }}"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,308 @@
+<div class="admin-hero">
+  <div class="hero-content">
+    <mat-icon>admin_panel_settings</mat-icon>
+    <h1>Admin Panel</h1>
+    <p>Upravljanje sistemom E-Religija</p>
+  </div>
+</div>
+
+<div class="page-container">
+
+  <!-- Stats -->
+  <div class="stats-grid" *ngIf="stats">
+    <div class="stat-card">
+      <div class="stat-icon users"><mat-icon>people</mat-icon></div>
+      <div><span class="stat-num">{{ stats.totalUsers }}</span><span class="stat-label">Korisnici</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon clergy"><mat-icon>manage_accounts</mat-icon></div>
+      <div><span class="stat-num">{{ stats.totalClergy }}</span><span class="stat-label">Sveštena lica</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon objects"><mat-icon>account_balance</mat-icon></div>
+      <div><span class="stat-num">{{ stats.totalObjects }}</span><span class="stat-label">Objekti</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon total"><mat-icon>event_note</mat-icon></div>
+      <div><span class="stat-num">{{ stats.totalAppointments }}</span><span class="stat-label">Zakazivanja</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pending"><mat-icon>hourglass_empty</mat-icon></div>
+      <div><span class="stat-num">{{ stats.pendingAppointments }}</span><span class="stat-label">Na čekanju</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon approved"><mat-icon>check_circle</mat-icon></div>
+      <div><span class="stat-num">{{ stats.approvedAppointments }}</span><span class="stat-label">Odobreno</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon rejected"><mat-icon>cancel</mat-icon></div>
+      <div><span class="stat-num">{{ stats.rejectedAppointments }}</span><span class="stat-label">Odbijeno</span></div>
+    </div>
+
+    <div class="religion-stats-card" *ngIf="stats.appointmentsByReligion?.length">
+      <h4>Zakazivanja po vjeri</h4>
+      <div class="religion-bar" *ngFor="let r of stats.appointmentsByReligion">
+        <span class="religion-name">{{ r.religion }}</span>
+        <div class="bar-wrap">
+          <div class="bar" [style.width.%]="(r.count / stats!.totalAppointments) * 100"></div>
+        </div>
+        <span class="religion-count">{{ r.count }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main tabs -->
+  <mat-tab-group>
+
+    <!-- Korisnici tab -->
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon>people</mat-icon> Korisnici</ng-template>
+
+      <div class="tab-content">
+        <div class="loading-container" *ngIf="loading.users">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+
+        <div class="users-table" *ngIf="!loading.users">
+          <div class="table-header">
+            <span>Ime i prezime</span>
+            <span>Email</span>
+            <span>Vjera</span>
+            <span>Uloga</span>
+            <span>Objekat</span>
+            <span>Status</span>
+            <span>Akcije</span>
+          </div>
+
+          <div class="table-row" *ngFor="let u of users" [class.inactive]="!u.isActive">
+            <span class="user-name-cell">
+              <div class="small-avatar">{{ u.firstName[0] }}{{ u.lastName[0] }}</div>
+              {{ u.firstName }} {{ u.lastName }}
+            </span>
+            <span class="email-cell">{{ u.email }}</span>
+            <span>{{ u.religionName || '—' }}</span>
+
+            <!-- Uređivanje uloge -->
+            <span *ngIf="editingRoleId !== u.id">
+              <span class="role-badge" [class]="'role-' + u.role">{{ u.roleLabel }}</span>
+            </span>
+            <span *ngIf="editingRoleId === u.id">
+              <select [(ngModel)]="newRole" class="inline-select">
+                <option [value]="UserRole.User">Korisnik</option>
+                <option [value]="UserRole.Clergy">Svešteno lice</option>
+                <option [value]="UserRole.Admin">Administrator</option>
+              </select>
+            </span>
+
+            <span *ngIf="editingRoleId !== u.id">{{ u.religiousObjectName || '—' }}</span>
+            <span *ngIf="editingRoleId === u.id">
+              <select [(ngModel)]="newObjectId" class="inline-select" *ngIf="newRole == UserRole.Clergy">
+                <option [value]="null">— Izaberite —</option>
+                <option *ngFor="let o of objects" [value]="o.id">{{ o.name }}</option>
+              </select>
+              <span *ngIf="newRole != UserRole.Clergy">—</span>
+            </span>
+
+            <span>
+              <span class="active-badge" [class.active]="u.isActive" [class.inactive-badge]="!u.isActive">
+                {{ u.isActive ? 'Aktivan' : 'Neaktivan' }}
+              </span>
+            </span>
+
+            <span class="actions-cell">
+              <ng-container *ngIf="editingRoleId !== u.id">
+                <button class="icon-btn edit" (click)="startEditRole(u)" title="Uredi ulogu">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="icon-btn toggle" (click)="toggleActive(u)" [title]="u.isActive ? 'Deaktiviraj' : 'Aktiviraj'">
+                  <mat-icon>{{ u.isActive ? 'person_off' : 'person' }}</mat-icon>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="editingRoleId === u.id">
+                <button class="icon-btn save" (click)="saveRole(u.id)" title="Sačuvaj">
+                  <mat-icon>save</mat-icon>
+                </button>
+                <button class="icon-btn cancel" (click)="editingRoleId = null" title="Otkaži">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Zakazivanja tab -->
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon>event_note</mat-icon> Zakazivanja</ng-template>
+
+      <div class="tab-content">
+        <div class="filter-row">
+          <label>Filter po statusu:</label>
+          <select [(ngModel)]="filterStatus" class="filter-select">
+            <option value="">Svi</option>
+            <option [value]="AppointmentStatus.Pending">Na čekanju</option>
+            <option [value]="AppointmentStatus.Approved">Odobreno</option>
+            <option [value]="AppointmentStatus.Rejected">Odbijeno</option>
+          </select>
+        </div>
+
+        <div class="loading-container" *ngIf="loading.appointments">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+
+        <div class="appointments-list" *ngIf="!loading.appointments">
+          <div class="appointment-row" *ngFor="let a of filteredAppointments">
+            <div class="appt-main">
+              <div class="ceremony-badge">
+                <mat-icon>{{ a.ceremonyIcon || 'event' }}</mat-icon>
+                {{ a.ceremonyTypeName }}
+              </div>
+              <div class="appt-meta">
+                <span><mat-icon>person</mat-icon> {{ a.userFullName }}</span>
+                <span><mat-icon>account_balance</mat-icon> {{ a.religiousObjectName }}, {{ a.religiousObjectCity }}</span>
+                <span><mat-icon>calendar_today</mat-icon> {{ formatDate(a.requestedDate) }} u {{ a.requestedTime }}</span>
+              </div>
+            </div>
+            <span class="status-badge" [class]="getStatusClass(a.status)">{{ a.statusLabel }}</span>
+          </div>
+
+          <div class="empty-state" *ngIf="filteredAppointments.length === 0">
+            <mat-icon>event_busy</mat-icon>
+            <p>Nema zakazivanja</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Objekti tab -->
+    <mat-tab>
+      <ng-template mat-tab-label><mat-icon>account_balance</mat-icon> Objekti</ng-template>
+
+      <div class="tab-content">
+
+        <!-- Header sa dugmetom -->
+        <div class="tab-header">
+          <div>
+            <span class="object-count">{{ objects.length }} objekat/a</span>
+          </div>
+          <button class="add-btn" (click)="openAddObjectForm()" *ngIf="!showAddObjectForm">
+            <mat-icon>add</mat-icon>
+            Dodaj objekat
+          </button>
+        </div>
+
+        <!-- Forma za dodavanje -->
+        <div class="add-object-form" *ngIf="showAddObjectForm">
+          <div class="form-title">
+            <mat-icon>add_circle</mat-icon>
+            <h3>Novi vjerski objekat</h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Naziv objekta <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="newObject.name" placeholder="npr. Saborni hram Hristovog Vaskrsenja">
+            </div>
+
+            <div class="form-group">
+              <label>Adresa <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="newObject.address" placeholder="Ulica i broj">
+            </div>
+
+            <div class="form-group">
+              <label>Grad <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="newObject.city" placeholder="npr. Sarajevo">
+            </div>
+
+            <div class="form-group">
+              <label>Vjera <span class="required">*</span></label>
+              <select [(ngModel)]="newObject.religionId">
+                <option [value]="null">— Izaberite —</option>
+                <option *ngFor="let r of religions" [value]="r.id">{{ r.iconSymbol }} {{ r.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tip objekta <span class="required">*</span></label>
+              <select [(ngModel)]="newObject.objectType">
+                <option value="">— Izaberite —</option>
+                <option *ngFor="let t of objectTypes" [value]="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Radno vrijeme</label>
+              <input type="text" [(ngModel)]="newObject.workingHours" placeholder="npr. 08:00 - 18:00">
+            </div>
+
+            <div class="form-group">
+              <label>Telefon</label>
+              <input type="text" [(ngModel)]="newObject.phoneNumber" placeholder="+387 XX XXX XXX">
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="newObject.email" placeholder="objekat@email.com">
+            </div>
+
+            <div class="form-group">
+              <label>Svešteno lice</label>
+              <select [(ngModel)]="newObject.clergypersonId">
+                <option [value]="null">— Bez dodjele —</option>
+                <option *ngFor="let u of clergyUsers" [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label>Opis</label>
+              <textarea [(ngModel)]="newObject.description" rows="2" placeholder="Kratki opis objekta..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="cancel-form-btn" (click)="cancelAddObject()" [disabled]="savingObject">
+              <mat-icon>close</mat-icon> Otkaži
+            </button>
+            <button class="save-form-btn" (click)="saveObject()" [disabled]="savingObject">
+              <mat-spinner diameter="18" *ngIf="savingObject"></mat-spinner>
+              <mat-icon *ngIf="!savingObject">save</mat-icon>
+              Sačuvaj objekat
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista objekata -->
+        <div class="loading-container" *ngIf="loading.objects">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+
+        <div class="objects-grid" *ngIf="!loading.objects">
+          <div class="object-card" *ngFor="let o of objects">
+            <div class="object-header">
+              <div>
+                <h3>{{ o.name }}</h3>
+                <span class="object-type">{{ o.objectTypeLabel }}</span>
+              </div>
+              <button class="icon-btn delete" (click)="deleteObject(o.id)" title="Deaktiviraj">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="object-details">
+              <div class="obj-row"><mat-icon>location_on</mat-icon><span>{{ o.address }}, {{ o.city }}</span></div>
+              <div class="obj-row"><mat-icon>auto_awesome</mat-icon><span>{{ o.religionName }}</span></div>
+              <div class="obj-row" *ngIf="o.clergypersonName"><mat-icon>person</mat-icon><span>{{ o.clergypersonName }}</span></div>
+              <div class="obj-row" *ngIf="o.workingHours"><mat-icon>schedule</mat-icon><span>{{ o.workingHours }}</span></div>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="objects.length === 0">
+            <mat-icon>account_balance</mat-icon>
+            <p>Nema dodanih objekata</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

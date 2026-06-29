@@ -1,0 +1,77 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/" class="navbar-brand">
+      <span class="brand-symbol" *ngIf="religion">{{ religion.iconSymbol }}</span>
+      <span class="brand-symbol" *ngIf="!religion">✝</span>
+      <span class="brand-text">E-Religija</span>
+    </a>
+
+    <div class="navbar-links" [class.open]="mobileMenuOpen">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="mobileMenuOpen = false">
+        <mat-icon>home</mat-icon> Početna
+      </a>
+      <a routerLink="/objects" routerLinkActive="active" (click)="mobileMenuOpen = false">
+        <mat-icon>account_balance</mat-icon> Objekti
+      </a>
+
+      <ng-container *ngIf="user">
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <mat-icon>event_note</mat-icon> Moji termini
+        </a>
+        <a routerLink="/profile" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <mat-icon>person</mat-icon> Moj profil
+        </a>
+        <a routerLink="/booking" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <mat-icon>event</mat-icon> Zakazivanje
+        </a>
+        <a *ngIf="user.role === UserRole.Clergy || user.role === UserRole.Admin"
+           routerLink="/clergy" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <mat-icon>manage_accounts</mat-icon> Sveštenik
+        </a>
+        <a *ngIf="user.role === UserRole.Admin"
+           routerLink="/admin" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <mat-icon>admin_panel_settings</mat-icon> Admin
+        </a>
+      </ng-container>
+    </div>
+
+    <div class="navbar-actions">
+      <div *ngIf="religion" class="religion-badge">
+        <span>{{ religion.iconSymbol }}</span>
+        <span class="religion-name">{{ religion.name }}</span>
+      </div>
+
+      <ng-container *ngIf="!user">
+        <a routerLink="/auth/login" class="btn-outline">Prijava</a>
+        <a routerLink="/auth/register" class="btn-filled">Registracija</a>
+      </ng-container>
+
+      <ng-container *ngIf="user">
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn">
+          <div class="user-avatar">{{ user.firstName[0] }}{{ user.lastName[0] }}</div>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <div class="user-menu-header">
+            <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+            <span class="user-role">{{ user.role === UserRole.Admin ? 'Administrator' : user.role === UserRole.Clergy ? 'Svešteno lice' : 'Korisnik' }}</span>
+          </div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon> Moj profil
+          </button>
+          <button mat-menu-item routerLink="/dashboard">
+            <mat-icon>event_note</mat-icon> Moji termini
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon> Odjava
+          </button>
+        </mat-menu>
+      </ng-container>
+
+      <button class="hamburger" (click)="toggleMobileMenu()">
+        <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+</nav>
